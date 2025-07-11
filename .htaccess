@@ -1,0 +1,119 @@
+# ##############################################################################
+# FICHIER .HTACCESS POUR L'APPLICATION GESTION_ECOLE
+# ##############################################################################
+
+# Activer le moteur de réécriture d'URL
+RewriteEngine On
+
+# Définir la base de réécriture pour qu'elle corresponde au dossier du projet.
+# Si votre site est à la racine (http://domaine.com/), mettez juste "/".
+# Si votre site est dans un sous-dossier (http://localhost/gestion_ecole/),
+# mettez le nom du dossier comme ci-dessous.
+RewriteBase /gestion_ecole/
+
+# ##############################################################################
+# RÈGLES DE SÉCURITÉ
+# ##############################################################################
+
+# ------------------------------------------------------------------------------
+# Empêcher l'accès direct aux fichiers de configuration et de librairies.
+# Toute tentative d'accéder à un fichier dans ces dossiers sera bloquée (erreur 403 Forbidden).
+# ------------------------------------------------------------------------------
+RewriteRule ^config/ - [F,L]
+RewriteRule ^includes/ - [F,L]
+RewriteRule ^lib/ - [F,L]
+RewriteRule ^templates/ - [F,L]
+
+# ------------------------------------------------------------------------------
+# Empêcher le listage des répertoires.
+# Si un dossier ne contient pas de fichier index.php, le serveur n'affichera
+# pas la liste des fichiers qu'il contient.
+# ------------------------------------------------------------------------------
+Options -Indexes
+
+# ------------------------------------------------------------------------------
+# Protection contre l'inclusion de fichiers à distance.
+# ------------------------------------------------------------------------------
+RewriteCond %{REQUEST_METHOD} GET
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=http:// [OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=(\.\.//?)+ [OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=/([a-z0-9_.]//?)+ [NC]
+RewriteRule .* - [F,L]
+
+
+# ##############################################################################
+# RÉÉCRITURE D'URL (URL PROPRES)
+# (Optionnel, mais recommandé pour un look professionnel)
+# ##############################################################################
+
+# ------------------------------------------------------------------------------
+# Cette section permet d'avoir des URL plus jolies.
+# Par exemple, pour accéder à "auth/login.php", l'utilisateur peut taper "login".
+#
+# NOTE : Cela nécessite une gestion des routes plus avancée dans index.php
+# (un "routeur"). Pour l'instant, nous mettons des exemples simples.
+# ------------------------------------------------------------------------------
+
+# Règle pour la page de connexion : /login -> /auth/login.php
+RewriteRule ^login/?$ auth/login.php [NC,L]
+
+# Règle pour la page de déconnexion : /logout -> /auth/logout.php
+RewriteRule ^logout/?$ auth/logout.php [NC,L]
+
+# Règle pour le tableau de bord de l'étudiant : /dashboard -> /etudiant/dashboard.php
+# (Nécessiterait une logique pour vérifier le rôle de l'utilisateur)
+# RewriteRule ^dashboard/?$ etudiant/dashboard.php [NC,L]
+
+# ------------------------------------------------------------------------------
+# Règle générale pour supprimer l'extension .php des fichiers.
+# Permet d'accéder à "auth/login.php" via l'URL "auth/login".
+# ------------------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+
+# ##############################################################################
+# PERFORMANCE
+# ##############################################################################
+
+# ------------------------------------------------------------------------------
+# Activer la compression Gzip/Deflate pour réduire le poids des fichiers
+# (HTML, CSS, JS, etc.) et accélérer le chargement.
+# ------------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# Mettre en cache les ressources statiques côté navigateur.
+# Le navigateur conservera les images, CSS et JS en mémoire pour une durée définie,
+# évitant de les retélécharger à chaque visite.
+# ------------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+</IfModule>
+
+
+# ##############################################################################
+# REDIRECTION FORCÉE VERS HTTPS (POUR LA PRODUCTION)
+# ##############################################################################
+
+# ------------------------------------------------------------------------------
+# Décommentez les lignes ci-dessous lorsque votre site sera en production
+# avec un certificat SSL installé. NE PAS ACTIVER SUR WAMP EN LOCALHOST.
+# ------------------------------------------------------------------------------
+# RewriteCond %{HTTPS} off
+# RewriteCond %{HTTP_HOST} ^(www\.)?votredomaine\.com [NC]
+# RewriteRule ^(.*)$ https://votredomaine.com/$1 [R=301,L]

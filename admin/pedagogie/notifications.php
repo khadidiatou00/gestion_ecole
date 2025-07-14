@@ -118,7 +118,7 @@ try {
     <!-- CSS "Galaxy" du Dashboard Admin -->
     <style>
         :root {
-            --bg-dark-primary: #0d1117; --bg-dark-secondary: #161b22; --border-color: rgba(255, 255, 255, 0.1);
+            --bg-dark-primary: #0d1117; --bg-dark-secondary:rgb(126, 155, 196); --border-color: rgba(255, 255, 255, 0.1);
             --text-primary: #c9d1d9; --text-secondary: #8b949e; --accent-glow-1: #00f2ff; --accent-glow-2: #da00ff;
             --font-primary: 'Poppins', sans-serif; --font-display: 'Orbitron', sans-serif;
         }
